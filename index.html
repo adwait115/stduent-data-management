@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Record Management System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .student-list {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .actions button {
+            background-color: #dc3545;
+        }
+
+        .actions button:hover {
+            background-color: #c82333;
+        }
+
+        .search-result {
+            margin-top: 15px;
+            color: #007BFF;
+        }
+
+        .form-container input {
+            width: 48%;
+            display: inline-block;
+        }
+
+        .form-container .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Student Record Management System</h1>
+
+        <!-- Add Student Form -->
+        <div class="form-container">
+            <h2>Add Student</h2>
+            <input type="text" id="student-id" placeholder="Enter Student ID" required>
+            <input type="text" id="student-name" placeholder="Enter Student Name" required>
+            <input type="number" id="student-age" placeholder="Enter Student Age" required>
+            <input type="text" id="student-grade" placeholder="Enter Student Grade" required>
+            <button onclick="addStudent()">Add Student</button>
+        </div>
+
+        <!-- View All Students -->
+        <div class="form-container">
+            <h2>All Students</h2>
+            <ul id="student-list">
+                <!-- Student records will appear here -->
+            </ul>
+        </div>
+
+        <!-- Search Student -->
+        <div class="form-container">
+            <h2>Search Student</h2>
+            <input type="text" id="search-id" placeholder="Enter Student ID to Search" oninput="searchStudent()">
+            <div id="search-result" class="search-result"></div>
+        </div>
+
+        <!-- Update Student -->
+        <div class="form-container">
+            <h2>Update Student Information</h2>
+            <div class="button-container">
+                <input type="text" id="update-id" placeholder="Enter Student ID to Update">
+                <button onclick="updateStudent()">Update Student</button>
+            </div>
+        </div>
+
+        <!-- Delete Student -->
+        <div class="form-container">
+            <h2>Delete Student</h2>
+            <div class="button-container">
+                <input type="text" id="delete-id" placeholder="Enter Student ID to Delete">
+                <button onclick="deleteStudent()">Delete Student</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let students = {}; // To store student records
+
+        // Function to add a student record
+        function addStudent() {
+            const studentId = document.getElementById('student-id').value;
+            const studentName = document.getElementById('student-name').value;
+            const studentAge = document.getElementById('student-age').value;
+            const studentGrade = document.getElementById('student-grade').value;
+
+            if (!studentId || !studentName || !studentAge || !studentGrade) {
+                alert("All fields are required.");
+                return;
+            }
+
+            // Add student to the record
+            students[studentId] = { name: studentName, age: studentAge, grade: studentGrade };
+            displayStudents();
+
+            // Clear the form fields
+            document.getElementById('student-id').value = '';
+            document.getElementById('student-name').value = '';
+            document.getElementById('student-age').value = '';
+            document.getElementById('student-grade').value = '';
+        }
+
+        // Function to display all students
+        function displayStudents() {
+            const studentList = document.getElementById('student-list');
+            studentList.innerHTML = ''; // Clear the current list
+
+            for (const studentId in students) {
+                const student = students[studentId];
+                const li = document.createElement('li');
+                li.innerHTML = `${student.name} (ID: ${studentId}, Age: ${student.age}, Grade: ${student.grade}) 
+                    <div class="actions">
+                        <button onclick="deleteStudentById('${studentId}')">Delete</button>
+                    </div>`;
+                studentList.appendChild(li);
+            }
+        }
+
+        // Function to search a student by ID
+        function searchStudent() {
+            const searchId = document.getElementById('search-id').value;
+            const searchResult = document.getElementById('search-result');
+
+            if (students[searchId]) {
+                const student = students[searchId];
+                searchResult.innerHTML = `Found: ${student.name}, Age: ${student.age}, Grade: ${student.grade}`;
+            } else {
+                searchResult.innerHTML = "Student not found.";
+            }
+        }
+
+        // Function to update student information
+        function updateStudent() {
+            const updateId = document.getElementById('update-id').value;
+            if (students[updateId]) {
+                const newName = prompt("Enter new name", students[updateId].name);
+                const newAge = prompt("Enter new age", students[updateId].age);
+                const newGrade = prompt("Enter new grade", students[updateId].grade);
+
+                students[updateId] = { name: newName, age: newAge, grade: newGrade };
+                displayStudents();
+                alert("Student information updated successfully.");
+            } else {
+                alert("Student not found.");
+            }
+        }
+
+        // Function to delete a student by ID
+        function deleteStudentById(studentId) {
+            delete students[studentId];
+            displayStudents();
+        }
+
+        // Function to delete a student by entered ID
+        function deleteStudent() {
+            const deleteId = document.getElementById('delete-id').value;
+            if (students[deleteId]) {
+                delete students[deleteId];
+                displayStudents();
+                alert("Student record deleted successfully.");
+            } else {
+                alert("Student not found.");
+            }
+        }
+    </script>
+
+    <!-- Firebase Script -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDleZxj2Ch0BYIpEVaRNQVrY3xPxrHXOCg",
+            authDomain: "good-e2ca6.firebaseapp.com",
+            projectId: "good-e2ca6",
+            storageBucket: "good-e2ca6.firebasestorage.app",
+            messagingSenderId: "178818839793",
+            appId: "1:178818839793:web:88731aba78e8df07bc6550",
+            measurementId: "G-JEDQ2E2NVN"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+</body>
+</html>
